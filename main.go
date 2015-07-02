@@ -27,7 +27,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Query", q.Qid)
+	log.Println("QID", q.Qid)
 
 	// Process query here
 
@@ -37,14 +37,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			Pid:       "demo-id-01",
 			Qid:       q.Qid,
 			Time:      int64(time.Since(start) / time.Millisecond),
-			Content:   "[YOUR ANSWER HERE]",
+			Content:   fmt.Sprintf("Title: %s;  Body: %s;  Category: %s", q.Title, q.Body, q.Category),
 			Resources: "resource1,resource2",
 		},
 	}
 
-	log.Println("Query", q.Qid, "got answer `", a.Answer.Content, "` in time", a.Answer.Time)
+	log.Println("Got answer `", a.Answer.Content, "` for", q.Qid, "in time", a.Answer.Time)
 
-	fmt.Fprintf(w, "%s%s", xml.Header, a)
+	fmt.Fprintf(w, "%s%s\n", xml.Header, a)
 }
 
 func main() {

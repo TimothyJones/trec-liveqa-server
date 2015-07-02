@@ -39,7 +39,7 @@ type Answer struct {
 }
 
 func (a *AnswerWrapper) String() string {
-	output, err := xml.MarshalIndent(a, "  ", "    ")
+	output, err := xml.MarshalIndent(a, "", "    ")
 	if err != nil {
 		log.Println(err)
 		return err.Error()
