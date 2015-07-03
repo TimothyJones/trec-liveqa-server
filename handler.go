@@ -25,13 +25,21 @@ func NewLiveQA(timeout int) *LiveQA {
 	}
 }
 
-// AddProcessor adds a processor to this handler
-func (lqa *LiveQA) AddProcessor(ap AnswerProducer) {
+// AddProcessor adds an AnswerProducer to this handler. All AnswerProcessors
+// are queried when a question is processed, and the most recent answer (if
+// any) is returned by ProcessQuestion
+func (lqa *LiveQA) AddProducer(ap AnswerProducer) {
 	lqa.Producers = append(lqa.Producers, ap)
 }
 
-// ProcessQuery processes a question and returns a wrapped answer
-func (lqa *LiveQA) ProcessQuery(q *Question) *AnswerWrapper {
+// ProcessQuery processes a question and returns a wrapped answer.
+// It submits the question to all AnswerProducers in the Producers slice, and
+// returns the most recent answer. If none of the AnswerProducers return in the
+// timeout, it returns a failed answer that contains a little information about
+// the question. If there are still answers being produced at the time the
+// timeout hits, the most recent answer is returned. If all AnswerProducers
+// return before the timeout, the function will return early.
+func (lqa *LiveQA) ProcessQuestion(q *Question) *AnswerWrapper {
 	answers := make(chan *Answer, 1)
 
 	// Kick off all the answer producers
@@ -89,7 +97,7 @@ func (lqa *LiveQA) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Println("QID", q.Qid)
 
 	// Process query here
-	a := lqa.ProcessQuery(q)
+	a := lqa.ProcessQuestion(q)
 
 	log.Println("Got answer `", a.Answer.Content, "` for", q.Qid, "in time", a.Answer.Time)
 

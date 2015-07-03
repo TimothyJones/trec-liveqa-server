@@ -9,7 +9,7 @@ func main() {
 	// Create a liveQA listener with a timeout of 3 seconds
 	lqa := NewLiveQA(3)
 	// Add a dummy answer producer to it
-	lqa.AddProcessor(&DummyAnswerProducer{})
+	lqa.AddProducer(&DummyAnswerProducer{})
 
 	http.Handle("/", lqa)
 
