@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// The LiveQA struct provides a handler that processes Questions submitted via
+// GET or POST. It implements http.Handle
 type LiveQA struct {
 	Producers []AnswerProducer
 	timeout   int
@@ -67,7 +69,7 @@ Loop:
 	return a
 }
 
-func (lqa *LiveQA) handler(w http.ResponseWriter, r *http.Request) {
+func (lqa *LiveQA) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 
 	if err != nil {

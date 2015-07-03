@@ -5,12 +5,16 @@ import (
 	"time"
 )
 
+// The AnswerProducer inteface allows objects to answer questions in a way that
+// the LiveQA handler can understand
 type AnswerProducer interface {
 	GetAnswer(chan *Answer, *Question)
 }
 
+// DummyAnswerProducer is a place holder for instantly returning answers that just parrot the question
 type DummyAnswerProducer struct{}
 
+// GetAnswer returns the question title, body and category as the answer.
 func (*DummyAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 	result <- &Answer{
 		Answered:  "yes",
