@@ -42,7 +42,7 @@ type AnswerWrapper struct {
 }
 
 // Answer provides the representation of an answer from a AnswerProcessor. It
-// can be serilised to xml using xml.Marshal()
+// can be serilised to xml using xml.Marshal(), or the convienience method answer.AsXML()
 type Answer struct {
 	XMLName   xml.Name `xml:"answer"`
 	Answered  string   `xml:"answered,attr"`
@@ -53,7 +53,9 @@ type Answer struct {
 	Resources string   `xml:"resources"`
 }
 
-func (a *AnswerWrapper) String() string {
+// AsXML returns a XML representation of the Answer structure, suitable for
+// returning to the TREC question client
+func (a *AnswerWrapper) AsXML() string {
 	output, err := xml.MarshalIndent(a, "", "    ")
 	if err != nil {
 		log.Println(err)
@@ -61,6 +63,10 @@ func (a *AnswerWrapper) String() string {
 	}
 
 	return string(output)
+}
+
+func (a *AnswerWrapper) String() string {
+	return a.AsXML()
 }
 
 // NewTimeOutAnswer provides the error response "answer" when a timeout has
