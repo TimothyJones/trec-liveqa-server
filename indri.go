@@ -5,10 +5,25 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"unicode"
 )
+
+func Sanitize(r rune) rune {
+	switch {
+	case unicode.IsPunct(r):
+		return ' '
+	case unicode.IsMark(r):
+		return ' '
+	case unicode.IsSymbol(r):
+		return ' '
+	}
+	return r
+}
 
 // Run the query, and dump the top-1 document content
 func IndriGetTopDocument(repo string, query string) string {
+	query = strings.Map(Sanitize, query)
+
 	out, err := exec.Command(
 		"IndriRunQuery", "-index="+repo,
 		"-trecFormat=1", "-count=1",
