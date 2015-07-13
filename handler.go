@@ -99,7 +99,7 @@ func (lqa *LiveQA) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Println("QID", q.Qid)
+	log.Println("IP", r.RemoteAddr, "QID", q.Qid)
 
 	// Process query here
 	a := lqa.ProcessQuestion(q)
