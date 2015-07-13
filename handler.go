@@ -94,6 +94,11 @@ func (lqa *LiveQA) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	q.ReceivedTime = time.Now()
 
+	// Drop query if without a proper Qid
+	if len(q.Qid) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	log.Println("QID", q.Qid)
 
 	// Process query here
