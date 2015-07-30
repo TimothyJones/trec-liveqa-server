@@ -104,6 +104,7 @@ func (lqa *LiveQA) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Process query here
 	a := lqa.ProcessQuestion(q)
 
+	log.Println("Got query `", q.Title, "` for", q.Qid)
 	log.Println("Got answer `", a.Answer.Content, "` for", q.Qid, "in time", a.Answer.Time)
 
 	fmt.Fprintf(w, "%s%s\n", xml.Header, a)
