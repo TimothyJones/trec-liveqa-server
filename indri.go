@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"os/exec"
+	"regexp"
 	"strings"
 	"time"
 	"unicode"
@@ -31,7 +32,12 @@ func IndriGetTopDocument(repo string, query string) string {
 	if err != nil {
 		return err.Error()
 	}
+
 	fields := strings.Fields(string(out))
+	if len(fields) < 2 {
+		return "[ERROR] No result"
+	}
+
 	docno := fields[2]
 
 	out, err = exec.Command(
@@ -50,6 +56,8 @@ func IndriGetTopDocument(repo string, query string) string {
 }
 
 func Summarize(content string, limit int) string {
+	matchedTags := regexp.MustCompile("</?\\w+(?:\\s+\\w+=\".*?\")*>")
+
 	lines := strings.Split(content, "\n")
 	var buf bytes.Buffer
 	var ok = false
@@ -62,7 +70,10 @@ func Summarize(content string, limit int) string {
 		case strings.HasPrefix(line, "</TEXT>"):
 			ok = false
 		case ok:
-			buf.WriteString(line + " ")
+			newline := matchedTags.ReplaceAllString(line, "")
+			if len(newline) > 0 {
+				buf.WriteString(newline + " ")
+			}
 		}
 	}
 
