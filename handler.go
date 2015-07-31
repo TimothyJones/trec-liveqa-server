@@ -94,11 +94,17 @@ func (lqa *LiveQA) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	q.ReceivedTime = time.Now()
 
-	log.Println("QID", q.Qid)
+	// Drop query if without a proper Qid
+	if len(q.Qid) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	log.Println("IP", r.RemoteAddr, "QID", q.Qid)
 
 	// Process query here
 	a := lqa.ProcessQuestion(q)
 
+	log.Println("Got query `", q.Title, "` for", q.Qid)
 	log.Println("Got answer `", a.Answer.Content, "` for", q.Qid, "in time", a.Answer.Time)
 
 	fmt.Fprintf(w, "%s%s\n", xml.Header, a)
