@@ -51,7 +51,7 @@ func (lqa *LiveQA) ProcessQuestion(q *Question) *AnswerWrapper {
 
 	// We want to be able to exit after a timeout
 	timeout := time.After(time.Duration(lqa.timeout) * time.Second)
-	answer := NewTimeOutAnswer(q, lqa.timeout)
+	answer := NewTimeoutAnswer(q, lqa.timeout)
 
 	// We also want to be able to exit after all producers have returned
 	done := make(chan struct{})
