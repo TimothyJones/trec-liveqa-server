@@ -14,14 +14,12 @@ import (
 // GET or POST. It implements http.Handle
 type LiveQA struct {
 	Producers []AnswerProducer
-	timeout   int
 }
 
-// NewLiveQA creates a LiveQA structure, with the specified timeout
-func NewLiveQA(timeout int) *LiveQA {
+// NewLiveQA creates a LiveQA structure
+func NewLiveQA() *LiveQA {
 	return &LiveQA{
 		Producers: make([]AnswerProducer, 0, 10),
-		timeout:   timeout,
 	}
 }
 
@@ -50,8 +48,8 @@ func (lqa *LiveQA) ProcessQuestion(q *Question) *AnswerWrapper {
 	}
 
 	// We want to be able to exit after a timeout
-	timeout := time.After(time.Duration(lqa.timeout) * time.Second)
-	answer := NewTimeoutAnswer(q, lqa.timeout)
+	timeout := time.After(time.Duration(config.Timeout) * time.Second)
+	answer := NewTimeoutAnswer(q, config.Timeout)
 
 	// We also want to be able to exit after all producers have returned
 	done := make(chan struct{})
