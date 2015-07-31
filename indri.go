@@ -2,6 +2,9 @@ package main
 
 import (
 	"bytes"
+	"encoding/xml"
+	"log"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -52,10 +55,8 @@ func IndriGetTopDocument(repo string, query string) string {
 	if err != nil {
 		return err.Error()
 	}
-	return string(out)
-}
 
-func Summarize(content string, limit int) string {
+	content := string(out)
 	matchedTags := regexp.MustCompile("</?\\w+(?:\\s+\\w+=\".*?\")*>")
 
 	lines := strings.Split(content, "\n")
@@ -63,7 +64,7 @@ func Summarize(content string, limit int) string {
 	var ok = false
 	for _, line := range lines {
 		switch {
-		case buf.Len() > limit:
+		case buf.Len() > 1000:
 			break
 		case strings.HasPrefix(line, "<TEXT>"):
 			ok = true
@@ -77,12 +78,56 @@ func Summarize(content string, limit int) string {
 		}
 	}
 
-	if buf.Len() > limit-5 {
-		buf.Truncate(limit - 5)
-		return buf.String() + "..."
-	} else {
-		return buf.String()
+	return buf.String()
+}
+
+type SummarizerRequest struct {
+	XMLName xml.Name `xml:"query"`
+	Qid     string   `xml:"qid"`
+	Qtitle  string   `xml:"qtitle"`
+	Qbody   string   `xml:"qbody"`
+	Qcat    string   `xml:"qcat"`
+	Text    string   `xml:"text"`
+}
+
+func (sr SummarizerRequest) AsXML() string {
+	output, err := xml.MarshalIndent(sr, "", "    ")
+	if err != nil {
+		log.Println(err)
+		return err.Error()
 	}
+
+	return string(output)
+}
+
+func Summarize(content string, q *Question, limit int) string {
+	req := SummarizerRequest{
+		Qid:    q.Qid,
+		Qtitle: q.Title,
+		Qbody:  q.Body,
+		Qcat:   q.Category,
+		Text:   content,
+	}
+	cmd := exec.Command("perl",
+		os.ExpandEnv("$HOME/work/evi-summarizer/main.pl"))
+	cmd.Stdin = strings.NewReader(req.AsXML())
+	out, err := cmd.Output()
+	if err != nil {
+		log.Println(err)
+		return err.Error()
+	}
+
+	return strings.TrimSpace(string(out))
+
+	//  var buf bytes.Buffer
+	//  buf.WriteString(out)
+
+	//  if buf.Len() > limit-5 {
+	//  buf.Truncate(limit - 5)
+	//  return buf.String() + "..."
+	//  } else {
+	//  return buf.String()
+	//  }
 }
 
 type IndriIndexAnswerProducer struct {
@@ -91,7 +136,7 @@ type IndriIndexAnswerProducer struct {
 
 func (ap *IndriIndexAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 	content := IndriGetTopDocument(ap.Repository, q.Title)
-	summary := Summarize(content, 250)
+	summary := Summarize(content, q, 250)
 	result <- &Answer{
 		Answered:  "yes",
 		Pid:       "demo-id-02",
