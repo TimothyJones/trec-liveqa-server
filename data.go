@@ -71,13 +71,26 @@ func (a *AnswerWrapper) String() string {
 
 // NewTimeOutAnswer provides the error response "answer" when a timeout has
 // been hit. The timeout supplied is included in the response
-func NewTimeOutAnswer(q *Question, timeout int) *Answer {
+func NewTimeoutAnswer(q *Question, timeout int) *Answer {
 	return &Answer{
 		Answered:  "no",
-		Pid:       "demo-id-01",
+		Pid:       config.Pid,
 		Qid:       q.Qid,
 		Time:      int64(time.Since(q.ReceivedTime) / time.Millisecond),
 		Content:   fmt.Sprintf("TIMEOUT after %d seconds: Title: %s;  Body: %s;  Category: %s", timeout, q.Title, q.Body, q.Category),
+		Resources: "resource1,resource2",
+	}
+}
+
+// NewErrorAnswer provides the error response "answer" when an error has
+// been hit. The error supplied is included in the response
+func NewErrorAnswer(q *Question, err error) *Answer {
+	return &Answer{
+		Answered:  "no",
+		Pid:       config.Pid,
+		Qid:       q.Qid,
+		Time:      int64(time.Since(q.ReceivedTime) / time.Millisecond),
+		Content:   fmt.Sprintf("%s (Question was Title: %s;  Body: %s;  Category: %s)", err.Error(), q.Title, q.Body, q.Category),
 		Resources: "resource1,resource2",
 	}
 }
