@@ -12,16 +12,20 @@ type AnswerProducer interface {
 }
 
 // DummyAnswerProducer is a place holder for instantly returning answers that just parrot the question
-type DummyAnswerProducer struct{}
+type DummyAnswerProducer struct{ name string }
+
+func NewDummyAnswerProducer(name string) (AnswerProducer, error) {
+	return &DummyAnswerProducer{name: name}, nil
+}
 
 // GetAnswer returns the question title, body and category as the answer.
-func (*DummyAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
+func (d *DummyAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 	result <- &Answer{
 		Answered:  "yes",
 		Pid:       config.Pid,
 		Qid:       q.Qid,
 		Time:      int64(time.Since(q.ReceivedTime) / time.Millisecond),
 		Content:   fmt.Sprintf("Title: %s;  Body: %s;  Category: %s", q.Title, q.Body, q.Category),
-		Resources: "resource1,resource2",
+		Resources: d.name,
 	}
 }

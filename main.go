@@ -1,29 +1,40 @@
 package main
 
 import (
-	"flag"
 	"github.com/vharitonsky/iniflags"
 	"log"
 	"net/http"
 	"strconv"
 )
 
+var factory map[string]func(string) (AnswerProducer, error)
+
+func init() {
+	factory = make(map[string]func(string) (AnswerProducer, error))
+	factory["indri"] = NewIndriIndexAnswerProducer
+	factory["dummy"] = NewDummyAnswerProducer
+}
+
 func main() {
-	index := flag.String("index", "", "path to Indri index")
 	iniflags.Parse()
 
 	// Create a liveQA
 	lqa := NewLiveQA()
 
-	// Add a dummy answer producer to it
-	lqa.AddProducer(&DummyAnswerProducer{})
-
-	// Add an indri index answer producer
-	iap, err := NewIndriIndexAnswerProducer(*index)
-	if err != nil {
-		log.Fatal("[indri index]", err)
+	// Add answer producers
+	count := 0
+	for _, name := range config.Producers {
+		if f, ok := factory[name]; ok {
+			ap, err := f(name + ".json")
+			if err != nil {
+				log.Printf("[Error initialising %s] %s\n", name, err)
+			} else {
+				lqa.AddProducer(ap)
+				log.Printf("Initialised '%s'\n", name)
+			}
+		}
 	}
-	lqa.AddProducer(iap)
+	log.Printf("Initialised %d of %d total answer producers\n", count, len(config.Producers))
 
 	http.Handle("/", lqa)
 

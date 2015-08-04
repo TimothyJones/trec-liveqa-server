@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"encoding/xml"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -25,14 +27,25 @@ func Sanitize(r rune) rune {
 }
 
 type IndriIndexAnswerProducer struct {
-	Repository string
+	Repository string `json:"repository"`
 }
 
-func NewIndriIndexAnswerProducer(index string) (*IndriIndexAnswerProducer, error) {
-	if _, err := os.Stat(index); err != nil {
+func NewIndriIndexAnswerProducer(config string) (AnswerProducer, error) {
+	ap := &IndriIndexAnswerProducer{}
+
+	byt, err := ioutil.ReadFile(config)
+	if err != nil {
 		return nil, err
 	}
-	return &IndriIndexAnswerProducer{Repository: index}, nil
+
+	if err := json.Unmarshal(byt, ap); err != nil {
+		return nil, err
+	}
+
+	if _, err := os.Stat(ap.Repository); err != nil {
+		return nil, err
+	}
+	return ap, nil
 }
 
 // Run the query, and dump the top-1 document content
