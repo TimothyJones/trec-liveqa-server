@@ -24,6 +24,17 @@ func Sanitize(r rune) rune {
 	return r
 }
 
+type IndriIndexAnswerProducer struct {
+	Repository string
+}
+
+func NewIndriIndexAnswerProducer(index string) (*IndriIndexAnswerProducer, error) {
+	if _, err := os.Stat(index); err != nil {
+		return nil, err
+	}
+	return &IndriIndexAnswerProducer{Repository: index}, nil
+}
+
 // Run the query, and dump the top-1 document content
 func IndriGetTopDocument(repo string, query string) string {
 	query = strings.Map(Sanitize, query)
@@ -128,10 +139,6 @@ func Summarize(content string, q *Question, limit int) string {
 	//  } else {
 	//  return buf.String()
 	//  }
-}
-
-type IndriIndexAnswerProducer struct {
-	Repository string
 }
 
 func (ap *IndriIndexAnswerProducer) GetAnswer(result chan *Answer, q *Question) {

@@ -25,18 +25,19 @@ func main() {
 	index := flag.String("index", "", "path to Indri index")
 	flag.Parse()
 
-	// Create a liveQA listener with a timeout of 30 seconds
+	// Create a liveQA
 	lqa := NewLiveQA()
 
 	// Add a dummy answer producer to it
 	lqa.AddProducer(&DummyAnswerProducer{})
 
 	// Add an indri index answer producer
-	if _, err := os.Stat(*index); err != nil {
-		log.Fatalf("[flag -index] %s", err)
-		return
+	iap, err := NewIndriIndexAnswerProducer(*index)
+	if err != nil {
+		log.Fatal("[indri index]", err)
 	}
-	lqa.AddProducer(&IndriIndexAnswerProducer{*index})
+
+	lqa.AddProducer(iap)
 
 	http.Handle("/", lqa)
 
