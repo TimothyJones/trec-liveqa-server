@@ -50,8 +50,7 @@ func main() {
 		lw := NewLogWatch(config.LogPath)
 		http.Handle("/tail1000", lw)
 	} else {
-		log.Fatalf("[flag -logfile] %s", err)
-		log.Fatalln("will carry on without the logfile")
+		log.Printf("[flag -logfile] '%s' will carry on without the logfile\n", err)
 	}
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Port), nil))
