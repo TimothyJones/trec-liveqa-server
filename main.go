@@ -2,26 +2,15 @@ package main
 
 import (
 	"flag"
+	"github.com/vharitonsky/iniflags"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-var config struct {
-	Pid     string
-	Timeout int
-	Port    int
-	LogPath string
-}
-
 func main() {
-	// Set up config
-	flag.IntVar(&config.Timeout, "timeout", 30, "timeout, in seconds")
-	flag.IntVar(&config.Port, "port", 8080, "HTTP service port")
-	flag.StringVar(&config.Pid, "pid", "demo-pid-01", "participant ID")
-	flag.StringVar(&config.LogPath, "log", "liveqa.log", "path to log file")
 	index := flag.String("index", "", "path to Indri index")
-	flag.Parse()
+	iniflags.Parse()
 
 	// Create a liveQA
 	lqa := NewLiveQA()
