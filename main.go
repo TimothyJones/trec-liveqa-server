@@ -2,10 +2,8 @@ package main
 
 import (
 	"flag"
-	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 )
 
@@ -36,21 +34,15 @@ func main() {
 	if err != nil {
 		log.Fatal("[indri index]", err)
 	}
-
 	lqa.AddProducer(iap)
 
 	http.Handle("/", lqa)
 
 	// Set up logging
-	logfile, err := os.OpenFile(config.LogPath,
-		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
-	if err == nil {
-		log.SetOutput(io.MultiWriter(os.Stderr, logfile))
-
-		lw := NewLogWatch(config.LogPath)
-		http.Handle("/tail1000", lw)
-	} else {
+	if lw, err := NewLogWatch(); err != nil {
 		log.Printf("[flag -logfile] '%s' will carry on without the logfile\n", err)
+	} else {
+		http.Handle("/tail1000", lw)
 	}
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Port), nil))
