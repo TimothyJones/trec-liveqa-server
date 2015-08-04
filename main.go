@@ -30,8 +30,10 @@ func main() {
 				log.Printf("[Error initialising %s] %s\n", name, err)
 			} else {
 				lqa.AddProducer(ap)
-				log.Printf("Initialised '%s'\n", name)
+				log.Printf("Initialised '%s' answer producer\n", name)
 			}
+		} else {
+			log.Printf("[Error initialising %s] Unrecognised answer producer '%s'\n", name, name)
 		}
 	}
 	log.Printf("Initialised %d of %d total answer producers\n", count, len(config.Producers))
