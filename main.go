@@ -13,6 +13,7 @@ func init() {
 	factory = make(map[string]func(string) (AnswerProducer, error))
 	factory["indri"] = NewIndriIndexAnswerProducer
 	factory["dummy"] = NewDummyAnswerProducer
+	factory["galago"] = NewGalagoAnswerProducer
 }
 
 func main() {
