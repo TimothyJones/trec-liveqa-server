@@ -26,12 +26,12 @@ func Sanitize(r rune) rune {
 	return r
 }
 
-type IndriIndexAnswerProducer struct {
+type IndriAnswerProducer struct {
 	Repository string `json:"repository"`
 }
 
-func NewIndriIndexAnswerProducer(config string) (AnswerProducer, error) {
-	ap := &IndriIndexAnswerProducer{}
+func NewIndriAnswerProducer(config string) (AnswerProducer, error) {
+	ap := &IndriAnswerProducer{}
 
 	byt, err := ioutil.ReadFile(config)
 	if err != nil {
@@ -154,7 +154,7 @@ func Summarize(content string, q *Question, limit int) string {
 	//  }
 }
 
-func (ap *IndriIndexAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
+func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 	content := IndriGetTopDocument(ap.Repository, q.Title)
 	summary := Summarize(content, q, 250)
 	result <- &Answer{
