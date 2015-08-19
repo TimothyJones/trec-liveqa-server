@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	//  "encoding/xml"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	//  "log"
 	"os"
@@ -153,13 +154,19 @@ func IndriGetTopDocument(repo string, query string, k int) ([]Document, error) {
 	return docs, nil
 }
 
-func PrepareQuery(text string, sdm bool) string {
-	query := strings.Map(Sanitize, text)
-	switch {
-	case sdm:
-		// FIXME: implement SD query
-		return query
+func PrepareSDQuery(text string) string {
+	terms := strings.Fields(strings.Map(Sanitize, strings.ToLower(text)))
+	var od, ud []string
+	for i := 1; i < len(terms); i++ {
+		od = append(od, fmt.Sprintf("#1( %s )", strings.Join(terms[i-1:i+1], " ")))
+		ud = append(ud, fmt.Sprintf("#uw8( %s )", strings.Join(terms[i-1:i+1], " ")))
 	}
+	query := fmt.Sprintf(
+		"#weight( %1.2f #combine( %s ) %1.2f #combine( %s ) %1.2f #combine ( %s ) )",
+		0.85, strings.Join(terms, " "),
+		0.10, strings.Join(od, " "),
+		0.05, strings.Join(ud, " "),
+	)
 	return query
 }
 
@@ -171,7 +178,7 @@ func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 	var docnos, texts []string
 	var docs []Document
 
-	query := PrepareQuery(q.Title, false)
+	query := PrepareSDQuery(q.Title)
 	docnos, err := IndriRunQuery(ap.Repository, query, 3)
 	if err != nil {
 		answer = NewErrorAnswer(q, err)
