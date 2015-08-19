@@ -154,8 +154,15 @@ func IndriGetTopDocument(repo string, query string, k int) ([]Document, error) {
 	return docs, nil
 }
 
-func PrepareSDQuery(text string) string {
-	terms := strings.Fields(strings.Map(Sanitize, strings.ToLower(text)))
+func GetQueryTerms(text string) []string {
+	return strings.Fields(strings.Map(Sanitize, strings.ToLower(text)))
+}
+
+func PrepareOrdinaryQuery(terms []string) string {
+	return strings.Join(terms, " ")
+}
+
+func PrepareSDQuery(terms []string) string {
 	var od, ud []string
 	for i := 1; i < len(terms); i++ {
 		od = append(od, fmt.Sprintf("#1( %s )", strings.Join(terms[i-1:i+1], " ")))
@@ -178,7 +185,14 @@ func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 	var docnos, texts []string
 	var docs []Document
 
-	query := PrepareSDQuery(q.Title)
+	var query string
+	terms := GetQueryTerms(q.Title)
+	if len(terms) > 8 {
+		query = PrepareOrdinaryQuery(terms)
+	} else {
+		query = PrepareSDQuery(terms)
+	}
+
 	docnos, err := IndriRunQuery(ap.Repository, query, 3)
 	if err != nil {
 		answer = NewErrorAnswer(q, err)
