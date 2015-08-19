@@ -191,7 +191,7 @@ func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 
 	var query string
 	terms := GetQueryTerms(q.Title)
-	if len(terms) > 8 {
+	if len(terms) > 10 {
 		query = PrepareOrdinaryQuery(terms)
 	} else {
 		query = PrepareSDQuery(terms)
