@@ -165,6 +165,10 @@ func PrepareOrdinaryQuery(terms []string) string {
 func PrepareSDQuery(terms []string) string {
 	var od, ud []string
 	for i := 1; i < len(terms); i++ {
+		if stopwords[terms[i-1]] || stopwords[terms[i]] {
+			continue
+		}
+
 		od = append(od, fmt.Sprintf("#1( %s )", strings.Join(terms[i-1:i+1], " ")))
 		ud = append(ud, fmt.Sprintf("#uw8( %s )", strings.Join(terms[i-1:i+1], " ")))
 	}
