@@ -108,7 +108,8 @@ func IndriDumpText(repo string, docnos []string) ([]string, error) {
 
 // ParseTRECDocument parse texts into Documents
 func ParseTRECDocument(texts []string) (docs []Document) {
-	matchedTags := regexp.MustCompile("</?\\w+(?:\\s+\\w+=\".*?\")*>")
+	//  matchedTags := regexp.MustCompile("</?\\S+(?:\\s+\\S+=\".*?\")*>")
+	matchedTags := regexp.MustCompile("</?.*?>")
 
 	for _, text := range texts {
 		lines := strings.Split(strings.TrimSpace(text), "\n")
@@ -162,12 +163,17 @@ func PrepareOrdinaryQuery(terms []string) string {
 	return strings.Join(terms, " ")
 }
 
+func PreparePassageQuery(terms []string) string {
+	return fmt.Sprintf(
+		"#combine[passage100:50]( %s )", strings.Join(terms, " "))
+}
+
 func PrepareSDQuery(terms []string) string {
 	var od, ud []string
 	for i := 1; i < len(terms); i++ {
-		if stopwords[terms[i-1]] || stopwords[terms[i]] {
-			continue
-		}
+		//  if stopwords[terms[i-1]] || stopwords[terms[i]] {
+		//  continue
+		//  }
 
 		od = append(od, fmt.Sprintf("#1( %s )", strings.Join(terms[i-1:i+1], " ")))
 		ud = append(ud, fmt.Sprintf("#uw8( %s )", strings.Join(terms[i-1:i+1], " ")))
@@ -191,11 +197,12 @@ func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 
 	var query string
 	terms := GetQueryTerms(q.Title)
-	if len(terms) > 10 {
-		query = PrepareOrdinaryQuery(terms)
-	} else {
-		query = PrepareSDQuery(terms)
-	}
+	query = PreparePassageQuery(terms)
+	//  if len(terms) > 0 {
+	//  query = PrepareOrdinaryQuery(terms)
+	//  } else {
+	//  query = PrepareSDQuery(terms)
+	//  }
 
 	docnos, err := IndriRunQuery(ap.Repository, query, 3)
 	if err != nil {
