@@ -227,14 +227,14 @@ func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 	}
 
 	summarizer = NewRemoteSummarizer(ap.SummarizerUrl)
-	summary = summarizer.GetSummary(docs, q, 250)
+	summary = summarizer.GetSummary(docs, q, config.AnswerSize)
 
 	answer = &Answer{
 		Answered:  "yes",
 		Pid:       config.Pid,
 		Qid:       q.Qid,
 		Time:      int64(time.Since(q.ReceivedTime) / time.Millisecond),
-		Content:   Truncate(summary, 250),
+		Content:   Truncate(summary, config.AnswerSize),
 		Resources: strings.Join(resources, ","),
 	}
 

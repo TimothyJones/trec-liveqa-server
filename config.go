@@ -6,11 +6,12 @@ import (
 )
 
 var config struct {
-	Pid       string
-	Timeout   int
-	Port      int
-	LogPath   string
-	Producers producers
+	Pid        string
+	Timeout    int
+	Port       int
+	LogPath    string
+	Producers  producers
+	AnswerSize int
 }
 
 type producers []string
@@ -33,4 +34,5 @@ func init() {
 	flag.StringVar(&config.Pid, "pid", "demo-pid-01", "participant ID")
 	flag.StringVar(&config.LogPath, "log", "liveqa.log", "path to log file")
 	flag.Var(&config.Producers, "producer", "comma separated list of processors to use on this server")
+	flag.IntVar(&config.AnswerSize, "answersize", 1000, "answer size limit, in number of chars")
 }
