@@ -1,4 +1,4 @@
 { 
-    "repository" : "/collection/indri_index.all",
-    "summarizer-url" : "http://localhost:8001"
+    "repository" : "/path/to/index",
+    "summarizer-url" : "http://url.to.summarizer:port"
 }
