@@ -189,11 +189,15 @@ func PrepareSDQuery(terms []string) string {
 
 func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 	var answer *Answer
-	var summarizer Summarizer
 	var summary string
 	var resources []string
 	var docnos, texts []string
 	var docs []Document
+
+	summarizers := []Summarizer{
+		NewRemoteSummarizer(ap.SummarizerUrl),
+		NewDummySummarizer(),
+	}
 
 	var query string
 	terms := GetQueryTerms(q.Title)
@@ -226,16 +230,22 @@ func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 		resources = append(resources, doc.Docno)
 	}
 
-	summarizer = NewRemoteSummarizer(ap.SummarizerUrl)
-	summary = summarizer.GetSummary(docs, q, config.AnswerSize)
+	for _, summarizer := range summarizers {
+		summary, err = summarizer.GetSummary(docs, q, config.AnswerSize)
+		if err != nil {
+			answer = NewErrorAnswer(q, err)
+			continue
+		}
 
-	answer = &Answer{
-		Answered:  "yes",
-		Pid:       config.Pid,
-		Qid:       q.Qid,
-		Time:      int64(time.Since(q.ReceivedTime) / time.Millisecond),
-		Content:   Truncate(summary, config.AnswerSize),
-		Resources: strings.Join(resources, ","),
+		answer = &Answer{
+			Answered:  "yes",
+			Pid:       config.Pid,
+			Qid:       q.Qid,
+			Time:      int64(time.Since(q.ReceivedTime) / time.Millisecond),
+			Content:   Truncate(summary, config.AnswerSize),
+			Resources: strings.Join(resources, ","),
+		}
+		goto end
 	}
 
 end:

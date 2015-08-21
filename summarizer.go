@@ -12,7 +12,7 @@ import (
 // It takes a Document, a Question, and an integer that represents the
 // character limit of the produced summary (this is indicative somehow)
 type Summarizer interface {
-	GetSummary(docs []Document, q *Question, limit int) string
+	GetSummary(docs []Document, q *Question, limit int) (string, error)
 }
 
 // DummySummarizer returns the full document text as the summary
@@ -22,8 +22,8 @@ func NewDummySummarizer() Summarizer {
 	return &DummySummarizer{}
 }
 
-func (ls *DummySummarizer) GetSummary(docs []Document, q *Question, limit int) string {
-	return docs[0].Text
+func (ls *DummySummarizer) GetSummary(docs []Document, q *Question, limit int) (string, error) {
+	return docs[0].Text, nil
 }
 
 // RemoteSummarizer talks to a remote summarization server in JSON
@@ -53,22 +53,23 @@ func (ss *RemoteSummarizer) GetPayload(docs []Document, q *Question, limit int) 
 	return payload
 }
 
-func (ss *RemoteSummarizer) GetSummary(docs []Document, q *Question, limit int) string {
+func (ss *RemoteSummarizer) GetSummary(docs []Document, q *Question, limit int) (string, error) {
+	var summary string
 	payload := ss.GetPayload(docs, q, limit)
 	resp, err := http.Post(ss.Url, "application/json", bytes.NewReader(payload))
 	if err != nil {
-		panic(err)
+		return summary, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return summary, err
 	}
 
 	var rsr RemoteSummarizerResponse
 	if err = json.Unmarshal(body, &rsr); err != nil {
-		panic(err)
+		return summary, err
 	}
-	return rsr.Summary
+	return rsr.Summary, nil
 }
