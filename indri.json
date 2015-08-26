@@ -1,3 +1,4 @@
 { 
-    "repository" : "path/to/index"
+    "repository" : "/path/to/index",
+    "summarizer-url" : "http://url.to.summarizer:port"
 }

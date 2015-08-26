@@ -11,7 +11,7 @@ var factory map[string]func(string) (AnswerProducer, error)
 
 func init() {
 	factory = make(map[string]func(string) (AnswerProducer, error))
-	factory["indri"] = NewIndriIndexAnswerProducer
+	factory["indri"] = NewIndriAnswerProducer
 	factory["dummy"] = NewDummyAnswerProducer
 	factory["galago"] = NewGalagoAnswerProducer
 }

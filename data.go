@@ -94,3 +94,11 @@ func NewErrorAnswer(q *Question, err error) *Answer {
 		Resources: "resource1,resource2",
 	}
 }
+
+// Document is a placeholder for contents and metadata
+type Document struct {
+	Docno string `json:"docno"`
+	Text  string `json:"text"`
+	Title string `json:"title"`
+	Url   string `json:"url"`
+}

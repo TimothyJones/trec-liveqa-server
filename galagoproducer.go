@@ -66,7 +66,7 @@ func (p *GalagoAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 
 	// TODO: Read the content out of the response
 
-	result <- &Answer{
+	answer = &Answer{
 		Answered:  "yes",
 		Pid:       config.Pid,
 		Qid:       q.Qid,
