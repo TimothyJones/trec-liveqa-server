@@ -71,6 +71,7 @@ func IndriRunQuery(repo string, query string, k int) ([]string, error) {
 	out, err := exec.Command(
 		"IndriRunQuery", "-index="+repo, "-trecFormat=1",
 		"-count="+strconv.Itoa(k), "-rule=method:okapi",
+		"-fbDocs=10", "-fbTerms=5",
 		"-query.text="+query).Output()
 	if err != nil {
 		return docnos, err

@@ -98,7 +98,7 @@ func (lqa *LiveQA) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("IP", r.RemoteAddr, "QID", q.Qid)
-	log.Println("Got query `", q.Title, "` for", q.Qid)
+	log.Println("Got query (title) `", q.Title, "` (body)`", q.Body, "`for", q.Qid)
 
 	// Process query here
 	a := lqa.ProcessQuestion(q)
