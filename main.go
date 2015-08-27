@@ -32,6 +32,7 @@ func main() {
 			} else {
 				lqa.AddProducer(ap)
 				log.Printf("Initialised '%s' answer producer\n", name)
+				count++
 			}
 		} else {
 			log.Printf("[Error initialising %s] Unrecognised answer producer '%s'\n", name, name)
