@@ -21,7 +21,7 @@ func GetHeadWord(question string) chan string {
 
 		if _, ok := r["result"]; !ok {
 			// We didn't receive a result
-			log.Printf("Headword: question '%s' had no result from the server (%s, %T)\n", r, r)
+			log.Printf("Headword: HeadWord at '%s' question '%s' had no result from the server (%s, %T)\n", config.HeadWordServer, question, r, r)
 			c <- ""
 			return
 		}
