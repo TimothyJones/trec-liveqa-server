@@ -199,7 +199,7 @@ func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 		NewDummySummarizer(),
 	}
 
-	timeout := time.After(5 * time.Second)
+	timeout := time.After(30 * time.Second)
 	headwordchan := GetHeadWord(q.Title)
 	expansion := ""
 
