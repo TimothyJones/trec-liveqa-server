@@ -19,6 +19,8 @@ func init() {
 func main() {
 	iniflags.Parse()
 
+	// This is a function rather an an init, as it relies of the results of the flags
+	LoadImportance()
 	// Create a liveQA
 	lqa := NewLiveQA()
 
