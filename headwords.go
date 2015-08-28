@@ -10,7 +10,7 @@ func GetHeadWord(question string) chan string {
 
 	go func() {
 		args := make([]interface{}, 1)
-		args[0] = question
+		args[0] = []string{question}
 
 		r, err := httpjsonrpc.Call(config.HeadWordServer, "extract_headchunks", 0, args)
 		if err != nil {
