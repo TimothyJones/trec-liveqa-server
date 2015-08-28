@@ -21,6 +21,7 @@ func GetHeadWord(question string) chan string {
 
 		if _, ok := r["result"]; !ok {
 			// We didn't receive a result
+			log.Printf("Headword: No result (%s, %T)\n", r, r)
 			c <- ""
 			return
 		}
@@ -31,10 +32,12 @@ func GetHeadWord(question string) chan string {
 			if ok {
 				c <- str
 			} else {
+				log.Printf("Headword: Not string (%s, %T)\n", x[0], x[0])
 				// We didn't receive a string
 				c <- ""
 			}
 		} else {
+			log.Printf("Headword: Not array (%s, %T)\n", r["result"], r["result"])
 			// we didn't recieve a result
 			c <- ""
 		}
