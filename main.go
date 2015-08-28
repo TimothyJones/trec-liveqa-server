@@ -19,9 +19,12 @@ func init() {
 func main() {
 	iniflags.Parse()
 
-	log.Printf("Testing stemming: '%s'\n", StemQuery("I like to stemming my queries"))
-	// This is a function rather an an init, as it relies of the results of the flags
-	LoadImportance()
+	if config.TrimQueries {
+		log.Printf("Testing stemming: '%s'\n", StemQuery("I like to stemming my queries"))
+		// This is a function rather an an init, as it relies of the results of the flags
+		LoadImportance()
+		log.Println(TrimQuery("This is a stemming queries that needs a bit of a trim dream babies"))
+	}
 	// Create a liveQA
 	lqa := NewLiveQA()
 

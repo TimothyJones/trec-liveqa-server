@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	//"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -42,6 +44,61 @@ func StemQuery(query string) string {
 		log.Fatal(err)
 	}
 	return strings.TrimSpace(output)
+}
+
+type QueryTerm struct {
+	Term       string
+	Importance float64
+}
+
+func (q QueryTerm) String() string {
+	return q.Term
+}
+
+type ByImportance []QueryTerm
+
+func (a ByImportance) Len() int           { return len(a) }
+func (a ByImportance) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByImportance) Less(i, j int) bool { return a[i].Importance < a[j].Importance }
+
+func TrimQuery(query string) string {
+	if !config.TrimQueries {
+		return query
+	}
+
+	stemmedQuery := StemQuery(query)
+	stemmedTerms := strings.Split(stemmedQuery, " ")
+	terms := strings.Split(query, " ")
+	if len(terms) != len(stemmedTerms) {
+		log.Printf("ERROR '%s' does not have the same number of terms after stemming to '%s'\n", query, stemmedQuery)
+		return query
+	}
+	qt := make([]QueryTerm, len(terms))
+
+	for i, _ := range terms {
+		qt[i].Term = terms[i]
+		imp, ok := importance[stemmedTerms[i]]
+		if !ok {
+			log.Printf("WARN: '%s' is not a term in the imporance map\n", stemmedTerms[i])
+			imp = 0
+		}
+		qt[i].Importance = imp
+	}
+
+	sort.Sort(ByImportance(qt))
+
+	/*res := "Terms: "
+	for _, term := range qt {
+		res += term.Term + "(" + fmt.Sprintf("%f", term.Importance) + ") "
+	}
+	log.Println(res) */
+
+	trimmed := qt[:config.WordsPerQuery]
+	result := ""
+	for _, term := range trimmed {
+		result += term.Term + " "
+	}
+	return result
 }
 
 func LoadImportance() {

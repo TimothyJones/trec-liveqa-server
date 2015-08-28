@@ -16,6 +16,8 @@ var config struct {
 	Word2VecServer string
 	KrovetzBinary  string
 	MaxScores      string
+	WordsPerQuery  int
+	TrimQueries    bool
 }
 
 type producers []string
@@ -43,4 +45,6 @@ func init() {
 	flag.StringVar(&config.KrovetzBinary, "krovetzbin", "/storage/rc/shane-reduce/krovetz-query", "path to krovetz stemmer binary")
 	flag.Var(&config.Producers, "producer", "comma separated list of processors to use on this server")
 	flag.IntVar(&config.AnswerSize, "answersize", 1000, "answer size limit, in number of chars")
+	flag.IntVar(&config.WordsPerQuery, "wordsperquery", 5, "Number of words per query if queries are trimmed")
+	flag.BoolVar(&config.TrimQueries, "trimqueries", false, "Whether or not to trim query words down to the N most important")
 }
