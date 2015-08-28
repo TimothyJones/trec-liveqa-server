@@ -19,6 +19,7 @@ func init() {
 func main() {
 	iniflags.Parse()
 
+	log.Printf("Testing stemming: '%s'\n", StemQuery("I like to stemming my queries"))
 	// This is a function rather an an init, as it relies of the results of the flags
 	LoadImportance()
 	// Create a liveQA

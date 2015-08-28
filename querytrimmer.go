@@ -2,13 +2,47 @@ package main
 
 import (
 	"bufio"
+	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 )
 
 var importance map[string]float64
+
+func StemQuery(query string) string {
+	cmd := exec.Command(config.KrovetzBinary)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
+
+	io.WriteString(stdin, query)
+	if err := stdin.Close(); err != nil {
+		log.Fatal(err)
+	}
+
+	bytes, err := ioutil.ReadAll(stdout)
+	if err != nil {
+		log.Fatal(err)
+	}
+	output := string(bytes)
+
+	if err := cmd.Wait(); err != nil {
+		log.Fatal(err)
+	}
+	return strings.TrimSpace(output)
+}
 
 func LoadImportance() {
 	importance = make(map[string]float64)
