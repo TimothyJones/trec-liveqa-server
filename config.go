@@ -33,7 +33,7 @@ func (i *producers) String() string {
 
 func init() {
 	config.Producers = make([]string, 0, 0)
-	flag.IntVar(&config.Timeout, "timeout", 30, "timeout, in seconds")
+	flag.IntVar(&config.Timeout, "timeout", 55, "timeout, in seconds")
 	flag.IntVar(&config.Port, "port", 8080, "HTTP service port")
 	flag.StringVar(&config.Pid, "pid", "demo-pid-01", "participant ID")
 	flag.StringVar(&config.HeadWordServer, "headwordserver", "http://localhost:8001", "Location of headword server")
