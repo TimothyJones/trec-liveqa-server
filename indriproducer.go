@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	//  "log"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
@@ -199,8 +199,22 @@ func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 		NewDummySummarizer(),
 	}
 
+	timeout := time.After(5 * time.Second)
+	headwordchan := GetHeadWord(q.Title)
+	expansion := ""
+
+HeadWordLoop:
+	select {
+	case <-timeout:
+		log.Println("Query '%s' timed out wating for headword")
+		break HeadWordLoop
+	case headwords := <-headwordchan:
+		expansion := word2vec(headwords)
+		log.Printf("Query '%s' has headword(s) '%s'; with synonyms '%s'\n", q.Title, headwords, expansion)
+	}
+
 	var query string
-	terms := GetQueryTerms(q.Title)
+	terms := GetQueryTerms(q.Title + " " + expansion)
 	query = PreparePassageQuery(terms)
 	//  if len(terms) > 0 {
 	//  query = PrepareOrdinaryQuery(terms)

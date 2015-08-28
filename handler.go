@@ -58,8 +58,6 @@ func (lqa *LiveQA) ProcessQuestion(q *Question) *AnswerWrapper {
 		close(done)
 	}()
 
-	headwordchan := GetHeadWord(q.Title)
-
 	// Get the most recent answer, or timeout
 Loop:
 	for {
@@ -70,8 +68,6 @@ Loop:
 			break Loop
 		case <-done:
 			break Loop
-		case hw := <-headwordchan:
-			log.Printf("Query '%s' has headword '%s'\n", q.Title, hw)
 		}
 	}
 
