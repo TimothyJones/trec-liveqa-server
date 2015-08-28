@@ -14,6 +14,8 @@ var config struct {
 	AnswerSize     int
 	HeadWordServer string
 	Word2VecServer string
+	KrovetzBinary  string
+	MaxScores      string
 }
 
 type producers []string
@@ -37,6 +39,8 @@ func init() {
 	flag.StringVar(&config.HeadWordServer, "headwordserver", "http://localhost:8001", "Location of headword server")
 	flag.StringVar(&config.Word2VecServer, "word2vecserver", "http://localhost:8002", "Location of word2vec server")
 	flag.StringVar(&config.LogPath, "log", "liveqa.log", "path to log file")
+	flag.StringVar(&config.MaxScores, "maxscoresfile", "/collection/jsc/for_liveqa/ordered_max_scores.txt", "path to max scores file")
+	flag.StringVar(&config.KrovetzBinary, "krovetzbin", "/storage/rc/shane-reduce/krovetz-query", "path to krovetz stemmer binary")
 	flag.Var(&config.Producers, "producer", "comma separated list of processors to use on this server")
 	flag.IntVar(&config.AnswerSize, "answersize", 1000, "answer size limit, in number of chars")
 }
