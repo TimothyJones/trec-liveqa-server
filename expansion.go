@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func word2vec(word string) string {
+func word2vec(word string, k int) string {
 	args := make([]interface{}, 1)
 	args[0] = word
 
@@ -29,13 +29,16 @@ func word2vec(word string) string {
 		for i, item := range x {
 			strs[i] = item.(string)
 		}
+		if len(strs) > k {
+			strs = strs[:k]
+		}
 		result := strings.Join(strs, " ")
 		log.Printf("Word2Vec expanded '%s' to '%s'\n", word, result)
 		return result
 	}
 }
 
-func wordnet(word string) string {
+func wordnet(word string, k int) string {
 	args := make([]interface{}, 1)
 	args[0] = []string{word}
 
@@ -55,13 +58,21 @@ func wordnet(word string) string {
 		return ""
 	}
 
-	x0, ok := x[0].([]string)
+	x0, ok := x[0].([]interface{})
 	if !ok {
 		log.Println("wordnet: cannot parse the result")
 		return ""
 	}
 
-	result := strings.Join(x0, " ")
+	strs := make([]string, len(x0))
+	for i, item := range x0 {
+		strs[i] = item.(string)
+	}
+	if len(strs) > k {
+		strs = strs[:k]
+	}
+
+	result := strings.Join(strs, " ")
 	log.Printf("wordnet expanded '%s' to '%s'\n", word, result)
 	return result
 }

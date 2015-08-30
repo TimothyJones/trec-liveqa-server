@@ -40,8 +40,11 @@ func Truncate(s string, limit int) string {
 }
 
 type IndriAnswerProducer struct {
-	Repository    string `json:"repository"`
-	SummarizerUrl string `json:"summarizer-url"`
+	Repository     string   `json:"repository"`
+	SummarizerUrl  string   `json:"summarizer-url"`
+	RunQueryArgs   []string `json:"run-query-args"`
+	ExpansionType  string   `json:"expansion-type"`
+	ExpansionCount int      `json:"expansion-count"`
 }
 
 func NewIndriAnswerProducer(config string) (AnswerProducer, error) {
@@ -62,6 +65,9 @@ func NewIndriAnswerProducer(config string) (AnswerProducer, error) {
 
 	log.Printf("indriproducer: Repository `%s`\n", ap.Repository)
 	log.Printf("indriproducer: SummarizerUrl `%s`\n", ap.SummarizerUrl)
+	log.Printf("indriproducer: RunQueryArgs `%s`\n", ap.RunQueryArgs)
+	log.Printf("indriproducer: ExpansionType `%s`\n", ap.ExpansionType)
+	log.Printf("indriproducer: ExpansionCount `%v`\n", ap.ExpansionCount)
 	return ap, nil
 }
 
@@ -73,15 +79,15 @@ type IndriQueryResult struct {
 }
 
 // IndriRunQuery executes the query and returns top k docnos
-func IndriRunQuery(repo string, query string, k int) ([]IndriQueryResult, error) {
+func IndriRunQuery(repo string, query string, k int, args []string) ([]IndriQueryResult, error) {
 	query = strings.Map(Sanitize, query)
 
 	var results []IndriQueryResult
-	out, err := exec.Command(
-		"IndriRunQuery", "-index="+repo, "-count="+strconv.Itoa(k),
-		"-rule=method:okapi", //"-fbDocs=10", "-fbTerms=5",
-		//  "-rule=method:okapi", "-fbDocs=10", "-fbTerms=5",
-		"-query.text="+query).Output()
+	callArgs := append(
+		[]string{"-index=" + repo, "-count=" + strconv.Itoa(k), "-query.text=" + query},
+		args...)
+
+	out, err := exec.Command("IndriRunQuery", callArgs...).Output()
 	if err != nil {
 		return results, err
 	}
@@ -227,7 +233,12 @@ HeadWordLoop:
 		log.Println("Query '%s' timed out wating for headword")
 		break HeadWordLoop
 	case headwords := <-headwordchan:
-		expansion := word2vec(headwords)
+		switch ap.ExpansionType {
+		case "word2vec":
+			expansion = word2vec(headwords, ap.ExpansionCount)
+		case "wordnet":
+			expansion = wordnet(headwords, ap.ExpansionCount)
+		}
 		log.Printf("Query '%s' has headword(s) '%s'; with synonyms '%s'\n", q.Title, headwords, expansion)
 	}
 
@@ -237,7 +248,7 @@ HeadWordLoop:
 
 	q.Body += " " + expansion
 
-	results, err := IndriRunQuery(ap.Repository, query, 3)
+	results, err := IndriRunQuery(ap.Repository, query, 3, ap.RunQueryArgs)
 	if err != nil {
 		answer = NewErrorAnswer(q, err)
 		goto end
