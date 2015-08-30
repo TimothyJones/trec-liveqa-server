@@ -34,3 +34,34 @@ func word2vec(word string) string {
 		return result
 	}
 }
+
+func wordnet(word string) string {
+	args := make([]interface{}, 1)
+	args[0] = []string{word}
+
+	r, err := httpjsonrpc.Call(config.HeadWordServer, "synonyms", 0, args)
+	if err != nil {
+		log.Printf("verbose error info: %#v", err)
+	}
+
+	if _, ok := r["result"]; !ok {
+		log.Println("wordnet: not getting any result")
+		return ""
+	}
+
+	x, ok := r["result"].([]interface{})
+	if !ok {
+		log.Println("wordnet: cannot parse the result")
+		return ""
+	}
+
+	x0, ok := x[0].([]string)
+	if !ok {
+		log.Println("wordnet: cannot parse the result")
+		return ""
+	}
+
+	result := strings.Join(x0, " ")
+	log.Printf("wordnet expanded '%s' to '%s'\n", word, result)
+	return result
+}
