@@ -60,6 +60,9 @@ func NewIndriAnswerProducer(config string) (AnswerProducer, error) {
 	if _, err := os.Stat(ap.Repository); err != nil {
 		return nil, err
 	}
+
+	log.Printf("indriproducer: Repository `%s`\n", ap.Repository)
+	log.Printf("indriproducer: SummarizerUrl `%s`\n", ap.SummarizerUrl)
 	return ap, nil
 }
 
@@ -83,6 +86,23 @@ func IndriRunQuery(repo string, query string, k int) ([]string, error) {
 		docnos = append(docnos, fields[2])
 	}
 	return docnos, nil
+}
+
+// RemoveDuplicateDocnos returns a list of unique docnos
+func RemoveDuplicateDocnos(docnos []string) []string {
+	w := 0
+
+loop:
+	for _, docno := range docnos {
+		for j := 0; j < w; j++ {
+			if docno == docnos[j] {
+				continue loop
+			}
+		}
+		docnos[w] = docno
+		w++
+	}
+	return docnos[:w]
 }
 
 // IndriDumpText retrieves texts stored in the index
@@ -146,6 +166,8 @@ func IndriGetTopDocument(repo string, query string, k int) ([]Document, error) {
 	if err != nil {
 		return docs, err
 	}
+
+	docnos = RemoveDuplicateDocnos(docnos)
 
 	texts, err := IndriDumpText(repo, docnos)
 	if err != nil {
@@ -221,6 +243,8 @@ HeadWordLoop:
 	//  } else {
 	//  query = PrepareSDQuery(terms)
 	//  }
+
+	q.Body += " " + expansion
 
 	docnos, err := IndriRunQuery(ap.Repository, query, 3)
 	if err != nil {

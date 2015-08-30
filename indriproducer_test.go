@@ -12,3 +12,22 @@ func TestPrepareSDQuery(t *testing.T) {
 		t.Errorf("Expected payload `%s` but got `%s`", expected, sd)
 	}
 }
+
+func TestRemoveDuplicateDocnos(t *testing.T) {
+	result := RemoveDuplicateDocnos([]string{"1", "2", "3", "2", "3", "4", "5", "2", "1", "4"})
+	expected := []string{"1", "2", "3", "4", "5"}
+
+	if len(expected) != len(result) {
+		t.Errorf("Expected `%s` but got `%s`", expected, result)
+	} else {
+		mismatch := false
+		for i := range result {
+			if expected[i] != result[i] {
+				mismatch = true
+			}
+		}
+		if mismatch {
+			t.Errorf("Expected `%s` but got `%s`", expected, result)
+		}
+	}
+}
