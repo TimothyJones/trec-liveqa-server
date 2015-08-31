@@ -4,15 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	//  "log"
 	"net/http"
 )
 
 // Summarizer implements a simplistic interface for query biased summarizers.
-// It takes a Document, a Question, and an integer that represents the
+// It takes a list of passages, a Question, and an integer that represents the
 // character limit of the produced summary (this is indicative somehow)
 type Summarizer interface {
-	GetSummary(docs []Document, q *Question, limit int) (string, error)
+	GetSummary(passages []string, q *Question, limit int) (string, error)
 }
 
 // DummySummarizer returns the full document text as the summary
@@ -22,8 +21,8 @@ func NewDummySummarizer() Summarizer {
 	return &DummySummarizer{}
 }
 
-func (ls *DummySummarizer) GetSummary(docs []Document, q *Question, limit int) (string, error) {
-	return docs[0].Text, nil
+func (ls *DummySummarizer) GetSummary(passages []string, q *Question, limit int) (string, error) {
+	return passages[0], nil
 }
 
 // RemoteSummarizer talks to a remote summarization server in JSON
@@ -35,17 +34,17 @@ func NewRemoteSummarizer(url string) Summarizer {
 
 // RemoteSummarizerRequest simply wraps around the Summarizer protocol
 type RemoteSummarizerRequest struct {
-	Docs  []Document `json:"documents"`
-	Qu    Question   `json:"question"`
-	Limit int        `json:"limit"`
+	Texts    []string `json:"texts"`
+	Question Question `json:"question"`
+	Limit    int      `json:"limit"`
 }
 
 type RemoteSummarizerResponse struct {
 	Summary string `json:"summary"`
 }
 
-func (ss *RemoteSummarizer) GetPayload(docs []Document, q *Question, limit int) []byte {
-	req := &RemoteSummarizerRequest{docs, *q, limit}
+func (ss *RemoteSummarizer) GetPayload(passages []string, q *Question, limit int) []byte {
+	req := &RemoteSummarizerRequest{passages, *q, limit}
 	payload, err := json.Marshal(req)
 	if err != nil {
 		panic(err)
@@ -53,9 +52,9 @@ func (ss *RemoteSummarizer) GetPayload(docs []Document, q *Question, limit int) 
 	return payload
 }
 
-func (ss *RemoteSummarizer) GetSummary(docs []Document, q *Question, limit int) (string, error) {
+func (ss *RemoteSummarizer) GetSummary(passages []string, q *Question, limit int) (string, error) {
 	var summary string
-	payload := ss.GetPayload(docs, q, limit)
+	payload := ss.GetPayload(passages, q, limit)
 	resp, err := http.Post(ss.Url, "application/json", bytes.NewReader(payload))
 	if err != nil {
 		return summary, err
