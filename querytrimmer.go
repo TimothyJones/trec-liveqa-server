@@ -78,7 +78,7 @@ func TrimQuery(query string) string {
 	for i, _ := range terms {
 		if _, ok := stopwords[terms[i]]; ok {
 			// This term is stopped
-
+			continue
 		}
 		imp, ok := importance[stemmedTerms[i]]
 		if !ok {
