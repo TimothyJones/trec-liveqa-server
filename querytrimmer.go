@@ -97,7 +97,11 @@ func TrimQuery(query string) string {
 		}
 		log.Println(res)              */
 
-	trimmed := qts[:config.WordsPerQuery]
+	trimmed := qts
+	if len(trimmed) > config.WordsPerQuery {
+		trimmed = trimmed[:config.WordsPerQuery]
+	}
+
 	result := ""
 	for _, term := range trimmed {
 		result += term.Term + " "
