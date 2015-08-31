@@ -242,7 +242,8 @@ HeadWordLoop:
 		log.Printf("Query '%s' has headword(s) '%s'; with synonyms '%s'\n", q.Title, headwords, expansion)
 	}
 
-	queryString := TrimQuery(q.Title + " " + expansion)
+	expandedQuery := strings.Join(GetQueryTerms(q.Title+" "+expansion), " ")
+	queryString := TrimQuery(expandedQuery)
 	terms := GetQueryTerms(queryString)
 	query := PreparePassageQuery(terms)
 

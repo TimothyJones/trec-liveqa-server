@@ -73,7 +73,7 @@ func TrimQuery(query string) string {
 		log.Printf("ERROR '%s' does not have the same number of terms after stemming to '%s'\n", query, stemmedQuery)
 		return query
 	}
-	qts := make([]QueryTerm, len(terms), 0)
+	qts := make([]QueryTerm, len(terms), len(terms))
 
 	for i, _ := range terms {
 		if _, ok := stopwords[terms[i]]; ok {
@@ -102,6 +102,7 @@ func TrimQuery(query string) string {
 	for _, term := range trimmed {
 		result += term.Term + " "
 	}
+	log.Printf("Query trimmed down to `%s`\n", result)
 	return result
 }
 
