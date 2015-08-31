@@ -226,13 +226,13 @@ func (ap *IndriAnswerProducer) GetAnswer(result chan *Answer, q *Question) {
 	headwordchan := GetHeadWord(q.Title)
 	expansion := ""
 	cache := make(map[string]Document)
-
+	var headwords string
 HeadWordLoop:
 	select {
 	case <-timeout:
 		log.Println("Query '%s' timed out wating for headword")
 		break HeadWordLoop
-	case headwords := <-headwordchan:
+	case headwords = <-headwordchan:
 		switch ap.ExpansionType {
 		case "word2vec":
 			expansion = word2vec(headwords, ap.ExpansionCount)
@@ -247,7 +247,7 @@ HeadWordLoop:
 	//  terms := GetQueryTerms(queryString)
 	//  query := PreparePassageQuery(terms)
 	originalQuery := strings.Join(GetQueryTerms(q.Title), " ")
-	queryString := TrimQuery(originalQuery)
+	queryString := TrimQuery(originalQuery) + " " + headwords
 	terms := GetQueryTerms(queryString + " " + expansion)
 	query := PreparePassageQuery(terms)
 
