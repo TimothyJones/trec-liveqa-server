@@ -19,6 +19,13 @@ func init() {
 func main() {
 	iniflags.Parse()
 
+	// Set up logging
+	if lw, err := NewLogWatch(); err != nil {
+		log.Printf("[flag -logfile] '%s' will carry on without the logfile\n", err)
+	} else {
+		http.Handle("/tail1000", lw)
+	}
+
 	if config.TrimQueries {
 		log.Printf("Testing stemming: '%s'\n", StemQuery("I like to stemming my queries"))
 		// This is a function rather an an init, as it relies of the results of the flags
@@ -47,13 +54,6 @@ func main() {
 	log.Printf("Initialised %d of %d total answer producers\n", count, len(config.Producers))
 
 	http.Handle("/", lqa)
-
-	// Set up logging
-	if lw, err := NewLogWatch(); err != nil {
-		log.Printf("[flag -logfile] '%s' will carry on without the logfile\n", err)
-	} else {
-		http.Handle("/tail1000", lw)
-	}
 
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(config.Port), nil))
 }
